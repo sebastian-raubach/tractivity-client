@@ -83,8 +83,11 @@ const handleError = (error) => {
  * Sends a FORM to the given URL using authentication
  * @param {Object} param0 `{ url: String, formData: Object, success: Callback, error: { codes: [], callback: Callback } }`
  */
-const apiForm = ({ url = null, formData, success = null, error = { codes: [], callback: handleError } }) => {
-  const promise = axios.post(url, formData, {
+const apiForm = ({ url = null, formData, method = 'POST', success = null, error = { codes: [], callback: handleError } }) => {
+  const promise = axios({
+    url: url,
+    method: method,
+    data: formData,
     crossDomain: true,
     withCredentials: true,
     headers: {

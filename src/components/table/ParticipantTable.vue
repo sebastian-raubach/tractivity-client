@@ -12,7 +12,7 @@
              select-mode="single"
              @row-selected="onRowSelected">
       <template v-slot:cell(stats)="data">
-        <Cartesian :width="200" :height="50" :data="getValues(data.item)">
+        <Cartesian :width="200" :height="50" :bound="getBounds(data.item)" :data="getValues(data.item)">
           <Area animated prop="value" />
           <Tooltip />
         </Cartesian>
@@ -179,7 +179,7 @@ export default {
     },
     deleteParticipant: function (participant) {
       this.$bvModal.msgBoxConfirm(this.$t('modalTextDeleteParticipantConfirm'), {
-        title: this.$t('modalTtitleDeleteParticipantConfirm'),
+        title: this.$t('modalTitleDeleteParticipantConfirm'),
         okTitle: this.$t('buttonYes'),
         cancelTitle: this.$t('buttonNo')
       }).then(value => {
@@ -187,6 +187,9 @@ export default {
           apiDeleteParticipant(participant.participantId, () => this.update(true))
         }
       })
+    },
+    getBounds: function (participant) {
+      return [0, Math.max(...this.years.map(y => participant.activityCounts[y] || 0))]
     },
     getValues: function (participant) {
       const result = this.years.map(y => {

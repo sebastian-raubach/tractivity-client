@@ -1,7 +1,7 @@
 <template>
   <b-modal :ok-title="$t('buttonSave')"
            :cancel-title="$t('buttonCancel')"
-           :title="$t('modalTitleAddActivityType')"
+           :title="isEdit ? $t('modalTitleEditActivityType') : $t('modalTitleAddActivityType')"
            size="md"
            @ok.prevent="onSubmit"
            ref="addActivityTypeModal">
@@ -21,10 +21,16 @@
 </template>
 
 <script>
-import { apiPostActivityType } from '@/plugins/api/activity'
+import { apiPostActivityType, apiPatchActivityType } from '@/plugins/api/activity'
 const emitter = require('tiny-emitter/instance')
 
 export default {
+  props: {
+    activityTypeToEdit: {
+      type: Object,
+      default: () => null
+    }
+  },
   data: function () {
     return {
       name: null,
@@ -36,7 +42,15 @@ export default {
       errorMessage: null
     }
   },
+  computed: {
+    isEdit: function () {
+      return this.activityTypeToEdit !== null
+    }
+  },
   watch: {
+    activityTypeToEdit: function () {
+      this.update()
+    },
     imageFile: async function (newValue) {
       if (newValue) {
         // Convert to base64 for displaying
@@ -70,28 +84,58 @@ export default {
       if (Object.keys(this.formState).filter(st => !this.formState[st]).length === 0) {
         emitter.emit('show-loading', true)
 
+        const resultHandler = () => {
+          emitter.emit('show-loading', false)
+          this.$emit('change')
+          this.hide()
+        }
+
+        const errorHandler = {
+          codes: [400, 404, 409],
+          callback: e => {
+            emitter.emit('show-loading', false)
+
+            switch (e.status) {
+              case 400:
+                this.errorMessage = 'formErrorMissingParameter'
+                break
+              case 404:
+                this.errorMessage = 'formErrorNotFound'
+                break
+            }
+          }
+        }
+
         const formData = new FormData()
         formData.append('image', this.imageFile)
         formData.append('name', this.name)
 
-        apiPostActivityType(formData, () => {
-          emitter.emit('show-loading', false)
-          this.$emit('change')
-          this.hide()
-        })
+        if (this.isEdit) {
+          apiPatchActivityType(this.activityTypeToEdit.id, formData, resultHandler, errorHandler)
+        } else {
+          apiPostActivityType(formData, resultHandler, errorHandler)
+        }
       }
     },
-    /**
-     * Shows the modal dialog and resets it to its initial state
-     */
-    show: function () {
-      this.name = null
+    update: function () {
+      if (this.activityTypeToEdit) {
+        this.name = this.activityTypeToEdit.name
+      } else {
+        this.name = null
+      }
+
       this.imageFile = null
       this.imageData = null
       this.formState = {
         null: null
       }
       this.errorMessage = null
+    },
+    /**
+     * Shows the modal dialog and resets it to its initial state
+     */
+    show: function () {
+      this.update()
 
       this.$nextTick(() => this.$refs.addActivityTypeModal.show())
     },

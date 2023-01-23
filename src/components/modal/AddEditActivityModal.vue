@@ -10,7 +10,7 @@
         <b-col cols=12 md=6>
           <b-form-group :label="$t('formLabelEvent')" label-for="activity-event">
             <b-input-group>
-              <b-form-input disabled id="activity-event" :value="eventDisplay" />
+              <b-form-input disabled id="activity-event" :value="eventDisplay" :state="formState.eventId" />
 
               <b-input-group-append>
                 <b-button @click="$refs.eventSelectionModal.show()"><BIconBookmarkStar /> </b-button>
@@ -21,10 +21,11 @@
         <b-col cols=12 md=6>
           <b-form-group :label="$t('formLabelActivityType')" label-for="activity-type">
             <b-input-group>
-              <b-form-select id="activity-type" :options="activityTypeOptions" v-model="activityTypeId" />
+              <b-form-select id="activity-type" :options="activityTypeOptions" v-model="activityTypeId" :state="formState.activityTypeId" />
 
               <b-input-group-append>
-                <b-button @click="$refs.activityTypeModal.show()"><BIconJournalAlbum /> </b-button>
+                <b-button @click="$refs.activityTypeModal.show()" v-if="activityTypeId"><BIconPencil /> </b-button>
+                <b-button @click="onAddActivityTypeClicked"><BIconPlus /> </b-button>
               </b-input-group-append>
             </b-input-group>
           </b-form-group>
@@ -32,10 +33,11 @@
         <b-col cols=12 md=6>
           <b-form-group :label="$t('formLabelLocation')" label-for="location">
             <b-input-group>
-              <b-form-select id="location" :options="locationOptions" v-model="locationId" />
+              <b-form-select id="location" :options="locationOptions" v-model="locationId" :state="formState.locationId" />
 
               <b-input-group-append>
-                <b-button @click="$refs.locationModal.show()"><BIconPinMap /> </b-button>
+                <b-button @click="$refs.locationModal.show()" v-if="locationId"><BIconPencil /> </b-button>
+                <b-button @click="onAddLocationClicked"><BIconPlus /> </b-button>
               </b-input-group-append>
             </b-input-group>
           </b-form-group>
@@ -46,9 +48,9 @@
           </b-form-group>
         </b-col>
         <b-col cols=12>
-          <b-form-group :label="$t('formLabelParticipants')" label-for="participants">
+          <b-form-group :label="$t('formLabelParticipants')" label-for="participants" :state="formState.measures">
             <b-list-group v-if="participants && participants.length > 0" id="participants">
-              <b-list-group-item v-for="participant in participants" :key="`participant-selection-${participant.participantId}`" :active="participant.selected" class="d-flex align-items-center" href="#" @click.prevent="e => { participant.selected = !participant.selected }">
+              <b-list-group-item :variant="(formState.measures === false && !atLeastOneParticipantSelected) ? 'danger' : null" v-for="(participant, pi) in participants" :key="`participant-selection-${participant.participantId}`" :active="participant.selected" class="d-flex align-items-center" href="#" @click.prevent="onParticipantSelected(pi)">
                 <b-form-checkbox v-model="participant.selected" />
                 <CustomAvatar :id="participant.participantId"
                               :name="participant.participantName"
@@ -62,7 +64,7 @@
         </b-col>
 
         <b-col cols=12 md=6 v-for="participant in selectedParticipants" :key="`participant-entry-${participant.participantId}`">
-          <ParticipantMeasures :participantMeasures="participant.participantMeasures" />
+          <ParticipantMeasures :class="formState.measures === false ? 'border-danger' : null" :participantMeasures="participant.participantMeasures" />
           <b-button @click="addMeasure(participant)">{{ $t('buttonAddMeasure') }}</b-button>
         </b-col>
       </b-row>
@@ -73,8 +75,8 @@
     <EventSelectionModal ref="eventSelectionModal" @event-selected="selectedEvent => { event = selectedEvent }" />
     <AddEditParticipantModal ref="participantModal" @change="updateParticipants" />
     <AddMeasureModal ref="measureModal" :measures="measureTypes" @measures-added="addMeasureValues" @measure-type-added="updateMeasures" />
-    <AddLocationModal ref="locationModal" @change="updateLocations" />
-    <addActivityTypeModal ref="activityTypeModal" @change="updateActivityTypes" />
+    <AddEditLocationModal :locationToEdit="selectedLocation" ref="locationModal" @change="updateLocations" />
+    <AddEditActivityTypeModal :activityTypeToEdit="selectedActivityType" ref="activityTypeModal" @change="updateActivityTypes" />
   </b-modal>
 </template>
 
@@ -84,27 +86,29 @@ import Vue from 'vue'
 import EventSelectionModal from '@/components/modal/EventSelectionModal'
 import AddEditParticipantModal from '@/components/modal/AddEditParticipantModal'
 import AddMeasureModal from '@/components/modal/AddMeasureModal'
-import AddLocationModal from '@/components/modal/AddLocationModal'
-import AddActivityTypeModal from '@/components/modal/AddActivityTypeModal'
+import AddEditLocationModal from '@/components/modal/AddEditLocationModal'
+import AddEditActivityTypeModal from '@/components/modal/AddEditActivityTypeModal'
 import ParticipantMeasures from '@/components/participant/ParticipantMeasures'
 import CustomAvatar from '@/components/util/CustomAvatar'
 
 import { apiGetLocations } from '@/plugins/api/location'
-import { apiGetActivityTypes } from '@/plugins/api/activity'
+import { apiGetActivityTypes, apiPostActivity } from '@/plugins/api/activity'
 import { apiGetMeasures } from '@/plugins/api/measure'
 import { apiGetEvent } from '@/plugins/api/event'
 
-import { BIconBookmarkStar, BIconJournalAlbum, BIconPinMap } from 'bootstrap-vue'
+import { BIconBookmarkStar, BIconPencil, BIconPlus } from 'bootstrap-vue'
 import { apiPostParticipantTable } from '@/plugins/api/participant'
 import { MAX_JAVA_INTEGER } from '@/plugins/api/base'
+
+const emitter = require('tiny-emitter/instance')
 
 export default {
   components: {
     BIconBookmarkStar,
-    BIconJournalAlbum,
-    BIconPinMap,
-    AddActivityTypeModal,
-    AddLocationModal,
+    BIconPlus,
+    BIconPencil,
+    AddEditActivityTypeModal,
+    AddEditLocationModal,
     AddMeasureModal,
     CustomAvatar,
     EventSelectionModal,
@@ -139,7 +143,33 @@ export default {
       selectedParticipant: null
     }
   },
+  watch: {
+    event: function (newValue) {
+      if (newValue) {
+        this.eventId = newValue.eventId
+      } else {
+        this.eventId = null
+      }
+    }
+  },
   computed: {
+    atLeastOneParticipantSelected: function () {
+      return this.participants.some(p => p.selected)
+    },
+    selectedActivityType: function () {
+      if (this.activityTypeId && this.activityTypes) {
+        return this.activityTypes.find(at => at.id === this.activityTypeId)
+      } else {
+        return null
+      }
+    },
+    selectedLocation: function () {
+      if (this.locationId && this.locations) {
+        return this.locations.find(l => l.id === this.locationId)
+      } else {
+        return null
+      }
+    },
     selectedParticipants: function () {
       if (this.participants) {
         return this.participants.filter(p => p.selected)
@@ -183,12 +213,28 @@ export default {
     }
   },
   methods: {
+    onParticipantSelected: function (index) {
+      this.participants[index].selected = !this.participants[index].selected
+      this.formState.measures = null
+    },
+    onAddActivityTypeClicked: function () {
+      this.activityTypeId = null
+
+      this.$nextTick(() => this.$refs.activityTypeModal.show())
+    },
+    onAddLocationClicked: function () {
+      this.locationId = null
+
+      this.$nextTick(() => this.$refs.locationModal.show())
+    },
     addMeasureValues: function (measureValues) {
       if (!this.selectedParticipant.participantMeasures.participantMeasures) {
         Vue.set(this.selectedParticipant.participantMeasures, 'participantMeasures', [])
       }
 
       measureValues.forEach(mv => this.selectedParticipant.participantMeasures.participantMeasures.push(mv))
+
+      this.formState.measures = null
     },
     addMeasure: function (participant) {
       this.selectedParticipant = participant
@@ -197,45 +243,54 @@ export default {
     onSubmit: function () {
       this.formValidated = true
 
+      const sp = this.participants.filter(p => p.selected)
+
       this.formState = {
         activityTypeId: this.activityTypeId !== undefined && this.activityTypeId !== null,
-        locationId: null,
-        eventId: null,
-        measures: null
+        locationId: this.locationId !== undefined && this.locationId !== null,
+        eventId: this.eventId !== undefined && this.eventId !== null,
+        // There are selected participants and each one has got at least one measurement
+        measures: sp.length > 0 && sp.every(p => p.participantMeasures && p.participantMeasures.participantMeasures && p.participantMeasures.participantMeasures.length > 0)
       }
 
       if (Object.keys(this.formState).filter(st => !this.formState[st]).length === 0) {
-        // emitter.emit('show-loading', true)
+        emitter.emit('show-loading', true)
 
-        // const resultHandler = () => {
-        //   emitter.emit('show-loading', false)
-        //   this.$emit('change')
-        //   this.hide()
-        // }
+        const resultHandler = () => {
+          emitter.emit('show-loading', false)
+          this.$emit('change')
+          this.hide()
+        }
 
-        // const errorHandler = {
-        //   codes: [400, 404, 409],
-        //   callback: e => {
-        //     emitter.emit('show-loading', false)
+        const errorHandler = {
+          codes: [400, 404, 409],
+          callback: e => {
+            emitter.emit('show-loading', false)
 
-        //     switch (e.status) {
-        //       case 400:
-        //         this.errorMessage = 'formErrorParticipantMissingParameter'
-        //         break
-        //       case 404:
-        //         this.errorMessage = 'formErrorParticipantNotFound'
-        //         break
-        //     }
-        //   }
-        // }
+            switch (e.status) {
+              case 400:
+                this.errorMessage = 'formErrorMissingParameter'
+                break
+              case 404:
+                this.errorMessage = 'formErrorNotFound'
+                break
+            }
+          }
+        }
 
-        // if (this.isEdit) {
-        //   apiPatchActivity({
-        //   }, resultHandler, errorHandler)
-        // } else {
-        //   apiPostActivity({
-        //   }, resultHandler, errorHandler)
-        // }
+        if (this.isEdit) {
+          // TODO
+          // apiPatchActivity({
+          // }, resultHandler, errorHandler)
+        } else {
+          apiPostActivity({
+            locationId: this.locationId,
+            eventId: this.eventId,
+            activityTypeId: this.activityTypeId,
+            activityCreatedOn: this.createdOn,
+            participantMeasures: sp.map(p => p.participantMeasures).reduce((a, b) => a.concat(b), [])
+          }, resultHandler, errorHandler)
+        }
       }
     },
     update: function () {

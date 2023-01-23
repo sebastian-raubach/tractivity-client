@@ -15,11 +15,14 @@ const apiPostActivity = (activity, onSuccess, onError) => apiAxios({ url: 'activ
 
 const apiPostActivityType = (formData, onSuccess, onError) => apiForm({ url: 'activitytype', method: 'POST', formData: formData, success: onSuccess, error: onError })
 
+const apiPatchActivityType = (activityTypeId, formData, onSuccess, onError) => apiForm({ url: `activitytype/${activityTypeId}`, method: 'PATCH', formData: formData, success: onSuccess, error: onError })
+
 export {
   apiGetActivity,
   apiGetActivityYears,
   apiPostActivityTable,
   apiGetActivityTypes,
   apiPostActivity,
-  apiPostActivityType
+  apiPostActivityType,
+  apiPatchActivityType
 }

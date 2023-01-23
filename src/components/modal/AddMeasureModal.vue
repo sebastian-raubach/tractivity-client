@@ -18,7 +18,8 @@
           <b-form-select id="measure" :options="measureOptions" v-model="selectedMeasure" />
 
           <b-input-group-append>
-            <b-button @click="$refs.addMeasureTypeModal.show()"><BIconTags /></b-button>
+            <b-button @click="$refs.addMeasureTypeModal.show()" v-if="selectedMeasure"><BIconPencil /></b-button>
+            <b-button @click="onAddMeasureTypeClicked"><BIconPlus /></b-button>
           </b-input-group-append>
         </b-input-group>
       </b-form-group>
@@ -35,20 +36,21 @@
       <p class="text-danger" v-if="errorMessage">{{ $t(errorMessage) }}</p>
     </b-form>
 
-    <AddMeasureTypeModal ref="addMeasureTypeModal" @change="$emit('measure-type-added')" />
+    <AddEditMeasureTypeModal :measureTypeToEdit="selectedMeasure" ref="addMeasureTypeModal" @change="$emit('measure-type-added')" />
   </b-modal>
 </template>
 
 <script>
-import AddMeasureTypeModal from '@/components/modal/AddMeasureTypeModal'
+import AddEditMeasureTypeModal from '@/components/modal/AddEditMeasureTypeModal'
 import CustomAvatar from '@/components/util/CustomAvatar'
 
-import { BIconTags } from 'bootstrap-vue'
+import { BIconPencil, BIconPlus } from 'bootstrap-vue'
 
 export default {
   components: {
-    BIconTags,
-    AddMeasureTypeModal,
+    BIconPencil,
+    BIconPlus,
+    AddEditMeasureTypeModal,
     CustomAvatar
   },
   props: {
@@ -115,6 +117,10 @@ export default {
     }
   },
   methods: {
+    onAddMeasureTypeClicked: function () {
+      this.selectedMeasure = null
+      this.$nextTick(() => this.$refs.addMeasureTypeModal.show())
+    },
     checkValue: function () {
       if (this.value === undefined || this.value === null) {
         return false

@@ -52,10 +52,16 @@
 </template>
 
 <script>
-import { apiPostMeasure } from '@/plugins/api/measure'
+import { apiPostMeasure, apiPatchMeasure } from '@/plugins/api/measure'
 const emitter = require('tiny-emitter/instance')
 
 export default {
+  props: {
+    measureTypeToEdit: {
+      type: Object,
+      default: () => null
+    }
+  },
   data: function () {
     return {
       name: null,
@@ -75,6 +81,9 @@ export default {
     }
   },
   computed: {
+    isEdit: function () {
+      return this.measureTypeToEdit !== null
+    },
     measureTypes: function () {
       return [{
         value: 'boolean_',
@@ -108,6 +117,9 @@ export default {
       } else {
         this.imageData = null
       }
+    },
+    measureTypeToEdit: function () {
+      this.update()
     }
   },
   methods: {
@@ -154,29 +166,67 @@ export default {
           formData.append('categories', this.categories)
         }
 
-        apiPostMeasure(formData, () => {
+        const resultHandler = () => {
           emitter.emit('show-loading', false)
           this.$emit('change')
           this.hide()
-        })
+        }
+
+        const errorHandler = {
+          codes: [400, 404, 409],
+          callback: e => {
+            emitter.emit('show-loading', false)
+
+            switch (e.status) {
+              case 400:
+                this.errorMessage = 'formErrorMissingParameter'
+                break
+              case 404:
+                this.errorMessage = 'formErrorNotFound'
+                break
+            }
+          }
+        }
+
+        if (this.isEdit) {
+          apiPatchMeasure(this.measureTypeToEdit.id, formData, resultHandler, errorHandler)
+        } else {
+          apiPostMeasure(formData, resultHandler, errorHandler)
+        }
       }
+    },
+    update: function () {
+      if (this.measureTypeToEdit) {
+        this.name = this.measureTypeToEdit.name
+        this.measureType = this.measureTypeToEdit.type
+        this.imageFile = null
+        this.imageData = null
+        this.minValue = this.measureTypeToEdit.restrictions ? this.measureTypeToEdit.restrictions.minValue : null
+        this.maxValue = this.measureTypeToEdit.restrictions ? this.measureTypeToEdit.restrictions.maxValue : null
+        this.minDate = this.measureTypeToEdit.restrictions ? this.measureTypeToEdit.restrictions.minDate : null
+        this.maxDate = this.measureTypeToEdit.restrictions ? this.measureTypeToEdit.restrictions.maxDate : null
+        this.categories = (this.measureTypeToEdit.restrictions && this.measureTypeToEdit.restrictions.categories) ? this.measureTypeToEdit.restrictions.categories.join(',') : null
+      } else {
+        this.name = null
+        this.measureType = null
+        this.imageFile = null
+        this.imageData = null
+        this.minValue = null
+        this.maxValue = null
+        this.minDate = null
+        this.maxDate = null
+        this.categories = null
+      }
+      this.formState = {
+        null: null
+      }
+      this.errorMessage = null
     },
     /**
      * Shows the modal dialog and resets it to its initial state
      */
     show: function () {
-      this.name = null
-      this.imageFile = null
-      this.imageData = null
-      this.minValue = null
-      this.maxValue = null
-      this.minDate = null
-      this.maxDate = null
-      this.categories = null
-      this.formState = {
-        null: null
-      }
-      this.errorMessage = null
+      this.update()
 
       this.$nextTick(() => this.$refs.addMeasureTypeModal.show())
     },

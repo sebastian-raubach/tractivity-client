@@ -75,10 +75,10 @@ export default {
 
           switch (e.status) {
             case 400:
-              this.errorMessage = 'formErrorParticipantMissingParameter'
+              this.errorMessage = 'formErrorMissingParameter'
               break
             case 404:
-              this.errorMessage = 'formErrorParticipantNotFound'
+              this.errorMessage = 'formErrorNotFound'
               break
             case 413:
               this.errorMessage = 'formErrorParticipantImageTooBig'

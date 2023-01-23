@@ -9,7 +9,7 @@
       <b-form-group :label="$t('formLabelEventName')" label-for="name">
         <b-form-input id="name" v-model="name" />
       </b-form-group>
-      <b-form-group :label="$t('formLabelEventDob')" label-for="createdOn">
+      <b-form-group :label="$t('formLabelEventCreatedOn')" label-for="createdOn">
         <b-form-datepicker id="createdOn" :start-weekday="1" :value-as-date="true" v-model="createdOn" />
       </b-form-group>
 
@@ -70,10 +70,10 @@ export default {
 
             switch (e.status) {
               case 400:
-                this.errorMessage = 'formErrorParticipantMissingParameter'
+                this.errorMessage = 'formErrorMissingParameter'
                 break
               case 404:
-                this.errorMessage = 'formErrorParticipantNotFound'
+                this.errorMessage = 'formErrorNotFound'
                 break
             }
           }

@@ -4,7 +4,10 @@ const apiGetMeasures = (onSuccess, onError) => apiAxios({ url: 'measure', succes
 
 const apiPostMeasure = (formData, onSuccess, onError) => apiForm({ url: 'measure', method: 'POST', formData: formData, success: onSuccess, error: onError })
 
+const apiPatchMeasure = (measureId, formData, onSuccess, onError) => apiForm({ url: `measure/${measureId}`, method: 'PATCH', formData: formData, success: onSuccess, error: onError })
+
 export {
   apiGetMeasures,
-  apiPostMeasure
+  apiPostMeasure,
+  apiPatchMeasure
 }
