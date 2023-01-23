@@ -42,7 +42,14 @@ export default {
       'storeBaseUrl'
     ]),
     url: function () {
-      const result = new URL(`${this.type}/${this.id}/img`, this.storeBaseUrl)
+      let result
+
+      if (this.storeBaseUrl.startsWith('http')) {
+        result = new URL(`${this.type}/${this.id}/img`, this.storeBaseUrl)
+      } else {
+        result = new URL(`${this.type}/${this.id}/img`, window.location.origin + window.location.pathname + '/api/')
+      }
+
       result.searchParams.append('imageToken', this.storeToken.imageToken)
 
       if (this.searchParams) {
