@@ -150,6 +150,7 @@ export default {
         const formData = new FormData()
         formData.append('image', this.imageFile)
         formData.append('name', this.name)
+        formData.append('measureType', this.measureType)
         if (this.minDate) {
           formData.append('minDate', this.minDate.toISOString().substring(0, 10))
         }
