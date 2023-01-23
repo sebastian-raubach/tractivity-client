@@ -24,7 +24,7 @@ RUN rm -f .env && \
 RUN apk add --no-cache openjdk11 && \
     wget https://services.gradle.org/distributions/gradle-6.0.1-bin.zip -P /tmp/ && \
     unzip /tmp/gradle-6.0.1-bin.zip -d /opt/ && \
-    echo "config.folder=/data/tractivity" > /opt/tractivity-server/config.properties && \
+    echo "data.directory.external=/data/tractivity" > /opt/tractivity-server/config.properties && \
     echo "project.name=tractivity" >> /opt/tractivity-server/gradle.properties && \
     /opt/gradle-6.0.1/bin/gradle -p /opt/tractivity-server war
 
