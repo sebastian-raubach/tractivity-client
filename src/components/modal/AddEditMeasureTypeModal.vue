@@ -11,34 +11,34 @@
       </b-form-group>
 
       <b-form-group :label="$t('formLabelMeasureType')" label-for="type">
-        <b-form-select :options="measureTypes" v-model="measureType" />
+        <b-form-select :options="measureTypes" v-model="measureType" :disabled="isEdit" />
       </b-form-group>
 
       <b-row>
         <b-col cols=12 md=6>
           <b-form-group :label="$t('formLabelMeasureMinValue')" label-for="min-value" v-if="measureType === 'decimal' || measureType === 'integer'">
-            <b-form-input type="number" id="min-value" v-model="minValue" />
+            <b-form-input type="number" id="min-value" v-model="minValue" :disabled="isEdit" />
           </b-form-group>
         </b-col>
         <b-col cols=12 md=6>
           <b-form-group :label="$t('formLabelMeasureMaxValue')" label-for="max-value" v-if="measureType === 'decimal' || measureType === 'integer'">
-            <b-form-input type="number" id="max-value" v-model="maxValue" />
+            <b-form-input type="number" id="max-value" v-model="maxValue" :disabled="isEdit" />
           </b-form-group>
         </b-col>
         <b-col cols=12 md=6>
           <b-form-group :label="$t('formLabelMeasureMinDate')" label-for="min-date" v-if="measureType === 'date'">
-            <b-form-datepicker :value-as-date="true" :start-weekday="1" id="min-date" v-model="minDate" />
+            <b-form-datepicker :value-as-date="true" :start-weekday="1" id="min-date" v-model="minDate" :disabled="isEdit" />
           </b-form-group>
         </b-col>
         <b-col cols=12 md=6>
           <b-form-group :label="$t('formLabelMeasureMaxDate')" label-for="max-date" v-if="measureType === 'date'">
-            <b-form-datepicker :value-as-date="true" :start-weekday="1" id="max-date" v-model="maxDate" />
+            <b-form-datepicker :value-as-date="true" :start-weekday="1" id="max-date" v-model="maxDate" :disabled="isEdit" />
           </b-form-group>
         </b-col>
       </b-row>
 
       <b-form-group :label="$t('formLabelMeasureCategories')" label-for="categories" v-if="measureType === 'single_cat' || measureType === 'multi_cat'">
-        <b-form-input id="categories" v-model="categories" />
+        <b-form-input id="categories" v-model="categories" :disabled="isEdit" />
       </b-form-group>
 
       <!-- Preview the image -->
@@ -86,7 +86,7 @@ export default {
     },
     measureTypes: function () {
       return [{
-        value: 'boolean_',
+        value: 'truth_value',
         text: this.$t('formSelectOptionMeasureTypeBoolean')
       }, {
         value: 'integer',
@@ -150,21 +150,23 @@ export default {
         const formData = new FormData()
         formData.append('image', this.imageFile)
         formData.append('name', this.name)
-        formData.append('measureType', this.measureType)
-        if (this.minDate) {
-          formData.append('minDate', this.minDate.toISOString().substring(0, 10))
-        }
-        if (this.maxDate) {
-          formData.append('maxDate', this.maxDate.toISOString().substring(0, 10))
-        }
-        if (this.minValue !== undefined && this.minValue !== null) {
-          formData.append('minValue', this.minValue)
-        }
-        if (this.maxValue !== undefined && this.maxValue !== null) {
-          formData.append('maxValue', this.maxValue)
-        }
-        if (this.categories && this.categories.length > 0) {
-          formData.append('categories', this.categories)
+        if (!this.isEdit) {
+          formData.append('measureType', this.measureType)
+          if (this.minDate) {
+            formData.append('minDate', this.minDate.toISOString().substring(0, 10))
+          }
+          if (this.maxDate) {
+            formData.append('maxDate', this.maxDate.toISOString().substring(0, 10))
+          }
+          if (this.minValue !== undefined && this.minValue !== null) {
+            formData.append('minValue', this.minValue)
+          }
+          if (this.maxValue !== undefined && this.maxValue !== null) {
+            formData.append('maxValue', this.maxValue)
+          }
+          if (this.categories && this.categories.length > 0) {
+            formData.append('categories', this.categories)
+          }
         }
 
         const resultHandler = () => {

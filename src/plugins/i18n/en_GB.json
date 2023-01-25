@@ -55,6 +55,8 @@
   "modalTitleUploadParticipantImage": "Select image",
   "modalTitleDeleteParticipantConfirm": "Confirm deletion",
   "modalTextDeleteParticipantConfirm": "Deleting a participant will remove all their activities and measurements from the system. Do you want to delete this participant?",
+  "modalTitleDeleteMeasureConfirm": "Confirm deletion",
+  "modalTextDeleteMeasureConfirm": "Are you sure you want to delete this measurement?",
   "modalTitleAddActivity": "Add activity",
   "modalTitleSelectEvent": "Select event",
   "modalTitleAddEvent": "Add event",

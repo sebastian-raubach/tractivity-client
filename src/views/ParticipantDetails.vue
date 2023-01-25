@@ -1,7 +1,7 @@
 <template>
   <section v-if="participant">
     <div class="d-flex justify-content-between align-items-center">
-      <h1 class="display-3">{{ participant.participantName }}</h1>
+      <h1 class="display-3 text-break">{{ participant.participantName }}</h1>
       <CustomAvatar :id="participant.participantId"
                     :name="participant.participantName"
                     type="participant"

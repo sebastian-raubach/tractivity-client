@@ -25,7 +25,7 @@
       </b-form-group>
 
       <b-form-group :label="$t('formLabelMeasureValue')" label-for="value" v-if="selectedMeasure">
-        <b-form-checkbox switch id="value" v-model="value" v-if="selectedMeasure.type === 'boolean_'" />
+        <b-form-checkbox switch id="value" v-model="value" v-if="selectedMeasure.type === 'truth_value'" />
         <b-form-select multiple id="value" :options="measureCategoryOptions" v-model="value" v-else-if="selectedMeasure.type === 'multi_cat'" />
         <b-form-select id="value" :options="measureCategoryOptions" v-model="value" v-else-if="selectedMeasure.type === 'single_cat'" />
         <b-form-input id="value" type="number" v-model="value" v-else-if="selectedMeasure.type === 'integer' || selectedMeasure.type === 'decimal'" />
@@ -54,9 +54,9 @@ export default {
     CustomAvatar
   },
   props: {
-    measures: {
-      type: Array,
-      default: () => []
+    measureToEdit: {
+      type: Object,
+      default: () => {}
     }
   },
   data: function () {
@@ -73,7 +73,7 @@ export default {
   watch: {
     selectedMeasure: function (newValue) {
       switch (newValue.type) {
-        case 'boolean_':
+        case 'truth_value':
           this.value = true
           break
         case 'single_cat':

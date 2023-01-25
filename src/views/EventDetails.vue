@@ -1,6 +1,6 @@
 <template>
   <section v-if="event">
-    <h1 class="display-3">{{ event.eventName }}</h1>
+    <h1 class="display-3 text-break">{{ event.eventName }}</h1>
 
     <hr />
 

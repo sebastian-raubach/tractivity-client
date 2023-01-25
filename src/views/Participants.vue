@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="display-3">{{ $t('pageParticipantsTitle') }}</h1>
+    <h1 class="display-3 text-break">{{ $t('pageParticipantsTitle') }}</h1>
     <hr />
     <ParticipantTable :getData="getData" />
   </div>

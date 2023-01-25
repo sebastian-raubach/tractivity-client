@@ -48,9 +48,9 @@
           </b-form-group>
         </b-col>
         <b-col cols=12>
-          <b-form-group :label="$t('formLabelParticipants')" label-for="participants" :state="formState.measures">
+          <b-form-group :label="$t('formLabelParticipants')" label-for="participants" :state="formState.participants">
             <b-list-group v-if="participants && participants.length > 0" id="participants">
-              <b-list-group-item :variant="(formState.measures === false && !atLeastOneParticipantSelected) ? 'danger' : null" v-for="(participant, pi) in participants" :key="`participant-selection-${participant.participantId}`" :active="participant.selected" class="d-flex align-items-center" href="#" @click.prevent="onParticipantSelected(pi)">
+              <b-list-group-item :variant="(formState.participants === false && !atLeastOneParticipantSelected) ? 'danger' : null" v-for="(participant, pi) in participants" :key="`participant-selection-${participant.participantId}`" :active="participant.selected" class="d-flex align-items-center" href="#" @click.prevent="onParticipantSelected(pi)">
                 <b-form-checkbox v-model="participant.selected" />
                 <CustomAvatar :id="participant.participantId"
                               :name="participant.participantName"
@@ -62,11 +62,6 @@
             <b-button @click="$refs.participantModal.show()">{{ $t('buttonAddParticipant') }}</b-button>
           </b-form-group>
         </b-col>
-
-        <b-col cols=12 md=6 v-for="participant in selectedParticipants" :key="`participant-entry-${participant.participantId}`">
-          <ParticipantMeasures :class="formState.measures === false ? 'border-danger' : null" :participantMeasures="participant.participantMeasures" />
-          <b-button @click="addMeasure(participant)">{{ $t('buttonAddMeasure') }}</b-button>
-        </b-col>
       </b-row>
 
       <p class="text-danger" v-if="errorMessage">{{ $t(errorMessage) }}</p>
@@ -74,7 +69,7 @@
 
     <EventSelectionModal ref="eventSelectionModal" @event-selected="selectedEvent => { event = selectedEvent }" />
     <AddEditParticipantModal ref="participantModal" @change="updateParticipants" />
-    <AddMeasureModal ref="measureModal" :measures="measureTypes" @measures-added="addMeasureValues" @measure-type-added="updateMeasures" />
+    <!-- <AddMeasureModal ref="measureModal" :measures="measureTypes" @measures-added="addMeasureValues" @measure-type-added="updateMeasures" /> -->
     <AddEditLocationModal :locationToEdit="selectedLocation" ref="locationModal" @change="updateLocations" />
     <AddEditActivityTypeModal :activityTypeToEdit="selectedActivityType" ref="activityTypeModal" @change="updateActivityTypes" />
   </b-modal>
@@ -85,15 +80,13 @@ import Vue from 'vue'
 
 import EventSelectionModal from '@/components/modal/EventSelectionModal'
 import AddEditParticipantModal from '@/components/modal/AddEditParticipantModal'
-import AddMeasureModal from '@/components/modal/AddMeasureModal'
+// import AddMeasureModal from '@/components/modal/AddMeasureModal'
 import AddEditLocationModal from '@/components/modal/AddEditLocationModal'
 import AddEditActivityTypeModal from '@/components/modal/AddEditActivityTypeModal'
-import ParticipantMeasures from '@/components/participant/ParticipantMeasures'
 import CustomAvatar from '@/components/util/CustomAvatar'
 
 import { apiGetLocations } from '@/plugins/api/location'
 import { apiGetActivityTypes, apiPostActivity } from '@/plugins/api/activity'
-import { apiGetMeasures } from '@/plugins/api/measure'
 import { apiGetEvent } from '@/plugins/api/event'
 
 import { BIconBookmarkStar, BIconPencil, BIconPlus } from 'bootstrap-vue'
@@ -109,11 +102,9 @@ export default {
     BIconPencil,
     AddEditActivityTypeModal,
     AddEditLocationModal,
-    AddMeasureModal,
     CustomAvatar,
     EventSelectionModal,
-    AddEditParticipantModal,
-    ParticipantMeasures
+    AddEditParticipantModal
   },
   props: {
     activityToEdit: {
@@ -127,17 +118,15 @@ export default {
       locationId: null,
       eventId: null,
       event: null,
-      measures: [],
       createdOn: new Date(),
       formState: {
         activityTypeId: null,
         locationId: null,
         eventId: null,
-        measures: null
+        participants: null
       },
       errorMessage: null,
       activityTypes: [],
-      measureTypes: [],
       participants: [],
       locations: [],
       selectedParticipant: null
@@ -215,7 +204,6 @@ export default {
   methods: {
     onParticipantSelected: function (index) {
       this.participants[index].selected = !this.participants[index].selected
-      this.formState.measures = null
     },
     onAddActivityTypeClicked: function () {
       this.activityTypeId = null
@@ -227,19 +215,6 @@ export default {
 
       this.$nextTick(() => this.$refs.locationModal.show())
     },
-    addMeasureValues: function (measureValues) {
-      if (!this.selectedParticipant.participantMeasures.participantMeasures) {
-        Vue.set(this.selectedParticipant.participantMeasures, 'participantMeasures', [])
-      }
-
-      measureValues.forEach(mv => this.selectedParticipant.participantMeasures.participantMeasures.push(mv))
-
-      this.formState.measures = null
-    },
-    addMeasure: function (participant) {
-      this.selectedParticipant = participant
-      this.$nextTick(() => this.$refs.measureModal.show())
-    },
     onSubmit: function () {
       this.formValidated = true
 
@@ -249,8 +224,7 @@ export default {
         activityTypeId: this.activityTypeId !== undefined && this.activityTypeId !== null,
         locationId: this.locationId !== undefined && this.locationId !== null,
         eventId: this.eventId !== undefined && this.eventId !== null,
-        // There are selected participants and each one has got at least one measurement
-        measures: sp.length > 0 && sp.every(p => p.participantMeasures && p.participantMeasures.participantMeasures && p.participantMeasures.participantMeasures.length > 0)
+        participants: sp && sp.length > 0
       }
 
       if (Object.keys(this.formState).filter(st => !this.formState[st]).length === 0) {
@@ -287,15 +261,14 @@ export default {
             locationId: this.locationId,
             eventId: this.eventId,
             activityTypeId: this.activityTypeId,
-            activityCreatedOn: this.createdOn,
-            participantMeasures: sp.map(p => p.participantMeasures).reduce((a, b) => a.concat(b), [])
+            createdOn: this.createdOn,
+            participantIds: sp.map(p => p.participantId)
           }, resultHandler, errorHandler)
         }
       }
     },
     update: function () {
       this.updateActivityTypes()
-      this.updateMeasures()
       this.updateParticipants()
       this.updateLocations()
 
@@ -324,14 +297,6 @@ export default {
         }
       })
     },
-    updateMeasures: function () {
-      apiGetMeasures(result => {
-        this.measureTypes = result
-        this.measureTypes.forEach(m => {
-          Vue.set(m, 'selected', false)
-        })
-      })
-    },
     updateParticipants: function () {
       apiPostParticipantTable({
         page: 1,
@@ -342,11 +307,6 @@ export default {
         this.participants = result.data
 
         this.participants.forEach(p => {
-          Vue.set(p, 'participantMeasures', {
-            participantId: p.participantId,
-            participantName: p.participantName,
-            participantMeasures: []
-          })
           Vue.set(p, 'selected', false)
         })
       })
@@ -372,7 +332,7 @@ export default {
         activityTypeId: null,
         locationId: null,
         eventId: null,
-        measures: null
+        participants: null
       }
       this.$nextTick(() => this.$refs.addEditActivityModal.show())
 

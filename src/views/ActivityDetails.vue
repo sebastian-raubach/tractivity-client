@@ -1,7 +1,7 @@
 <template>
   <section v-if="activity">
     <div class="d-flex justify-content-between align-items-center">
-      <h1 class="display-3">{{ activity.activityTypeName }}</h1>
+      <h1 class="display-3 text-break">{{ activity.activityTypeName }}</h1>
       <CustomAvatar :id="activity.activityTypeId"
                     :name="activity.activityTypeName"
                     size="5em"
@@ -15,7 +15,7 @@
 
     <b-row v-if="activity.participantMeasures">
       <b-col cols=12 lg=6 class="mb-3" v-for="p in activity.participantMeasures" :key="`participant-${p.participantId}`">
-        <ParticipantMeasures :participantMeasures="p" />
+        <ParticipantMeasures :activity="activity" :participant="p" />
       </b-col>
     </b-row>
   </section>
