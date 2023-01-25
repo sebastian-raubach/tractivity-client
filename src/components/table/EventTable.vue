@@ -92,9 +92,9 @@ export default {
         sortable: true,
         label: this.$t('tableColumnEventName')
       }, {
-        key: 'eventCreatedOn',
+        key: 'latestActivity',
         sortable: true,
-        label: this.$t('tableColumnEventCreatedOn'),
+        label: this.$t('tableColumnEventLastActivity'),
         formatter: value => value ? new Date(value).toLocaleDateString() : null
       }, {
         key: 'activities',

@@ -5,7 +5,11 @@
         <b-card no-body class="h-100">
           <b-card-body>
             <b-card-title>{{ event.eventName }}</b-card-title>
-            <b-card-sub-title><small><b-badge variant="light" v-b-tooltip="new Date(event.eventCreatedOn).toLocaleDateString()"><BIconCalendarDate /> {{ formatTimeAgo(event.eventCreatedOn) }}</b-badge></small></b-card-sub-title>
+            <b-card-sub-title>
+              <small>
+                <b-badge v-if="event.latestActivity" variant="light" v-b-tooltip="new Date(event.latestActivity).toLocaleDateString()"><BIconCalendarDate /> {{ formatTimeAgo(event.latestActivity) }}</b-badge>
+              </small>
+            </b-card-sub-title>
 
             <b-card-text v-if="event.activities">{{ $tc('widgetEventsActivityCount', event.activities.length) }}</b-card-text>
 
