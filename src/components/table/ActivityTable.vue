@@ -17,9 +17,9 @@
                       type="activitytype" />
       </template>
 
-      <template v-slot:cell(participantMeasures)="data">
+      <template v-slot:cell(participants)="data">
         <b-avatar-group>
-          <CustomAvatar v-for="participant in data.item.participantMeasures"
+          <CustomAvatar v-for="participant in data.item.participants"
                         :key="`activity-${data.item.activityId}-participant-${participant.participantId}`"
                         :id="participant.participantId"
                         :name="participant.participantName"
@@ -106,7 +106,7 @@ export default {
         sortable: true,
         label: this.$t('tableColumnActivityTypeName')
       }, {
-        key: 'participantMeasures',
+        key: 'participants',
         sortable: false,
         label: this.$t('tableColumnActivityParticipants')
       }, {
