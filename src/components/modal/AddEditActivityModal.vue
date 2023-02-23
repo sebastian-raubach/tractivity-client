@@ -110,6 +110,10 @@ export default {
     activityToEdit: {
       type: Object,
       default: () => null
+    },
+    eventIdToSelect: {
+      type: Number,
+      default: null
     }
   },
   data: function () {
@@ -322,7 +326,7 @@ export default {
         this.createdOn = this.activityToEdit.activityCreatedOn
       } else {
         this.activityTypeId = null
-        this.eventId = null
+        this.eventId = this.eventIdToSelect
         this.locationId = null
         this.createdOn = new Date()
       }

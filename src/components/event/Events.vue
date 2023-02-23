@@ -30,16 +30,21 @@
         </b-card>
       </b-col>
     </b-row>
+
+    <b-button variant="primary" @click="$refs.eventModal.show()"><BIconBookmarkPlus /> {{ $t('buttonAddEvent') }}</b-button>
+
+    <AddEditEventModal ref="eventModal" @change="update" />
   </div>
 </template>
 
 <script>
 import CustomAvatar from '@/components/util/CustomAvatar'
+import AddEditEventModal from '@/components/modal/AddEditEventModal'
 
 import { mapGetters } from 'vuex'
 import { apiPostEventTable } from '@/plugins/api/event'
 
-import { BIconCalendarDate } from 'bootstrap-vue'
+import { BIconCalendarDate, BIconBookmarkPlus } from 'bootstrap-vue'
 
 const DIVISIONS = [
   { amount: 60, name: 'seconds' },
@@ -54,7 +59,9 @@ const DIVISIONS = [
 export default {
   components: {
     BIconCalendarDate,
-    CustomAvatar
+    BIconBookmarkPlus,
+    CustomAvatar,
+    AddEditEventModal
   },
   data: function () {
     return {

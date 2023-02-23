@@ -37,7 +37,7 @@
 
     <b-button variant="primary" @click="addActivity"><BIconJournalPlus /> {{ $t('buttonAddActivity') }}</b-button>
 
-    <AddEditActivityModal :activityToEdit="selectedActivity" ref="activityModal" @change="update" />
+    <AddEditActivityModal :eventIdToSelect="eventIdToSelect" :activityToEdit="selectedActivity" ref="activityModal" @change="update" />
   </div>
 </template>
 
@@ -54,6 +54,10 @@ export default {
     BIconJournalPlus
   },
   props: {
+    eventIdToSelect: {
+      type: Number,
+      default: null
+    },
     getData: {
       type: Function,
       default: () => {

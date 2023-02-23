@@ -124,6 +124,7 @@ export default {
         hoverongaps: false,
         xgap: 1,
         ygap: 1,
+        name: '',
         colorscale: colorscale,
         hovertemplate: '%{x}. %{y}: %{z}',
         colorbar: { tickfont: { color: 'white' } }

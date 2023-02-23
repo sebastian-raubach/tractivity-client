@@ -4,7 +4,7 @@
 
     <hr />
 
-    <ActivityTable :getData="getActivities" />
+    <ActivityTable :getData="getActivities" :eventIdToSelect="eventId" />
   </section>
 </template>
 
