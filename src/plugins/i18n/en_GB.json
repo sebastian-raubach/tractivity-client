@@ -71,6 +71,8 @@
   "modalTitleAddMeasure": "Add measurement",
   "modalTitleAddMeasureType": "Add measure type",
   "modalTitleEditMeasureType": "Edit measure type",
+  "modalTitleLoading": "Loading",
+  "modalTextLoading": "Loading your data...",
   "pageActivitiesTitle": "Activities",
   "pageParticipantsTitle": "Participants",
   "pageLoginTitle": "Login",

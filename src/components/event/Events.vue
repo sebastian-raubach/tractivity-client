@@ -31,6 +31,11 @@
       </b-col>
     </b-row>
 
+    <b-pagination v-if="totalEvents > perPage"
+                  v-model="page"
+                  :per-page="perPage"
+                  :total-rows="totalEvents" />
+
     <b-button variant="primary" @click="$refs.eventModal.show()"><BIconBookmarkPlus /> {{ $t('buttonAddEvent') }}</b-button>
 
     <AddEditEventModal ref="eventModal" @change="update" />
@@ -82,6 +87,11 @@ export default {
 
         numeric: 'always'
       })
+    }
+  },
+  watch: {
+    page: function () {
+      this.update()
     }
   },
   methods: {

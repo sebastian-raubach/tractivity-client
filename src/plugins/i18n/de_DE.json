@@ -71,6 +71,8 @@
   "modalTitleAddMeasure": "Messung hinzufügen",
   "modalTitleAddMeasureType": "Messungstyp hinzufügen",
   "modalTitleEditMeasureType": "Messungstyp bearbeiten",
+  "modalTitleLoading": "Lade",
+  "modalTextLoading": "Lade deine Daten...",
   "pageActivitiesTitle": "Aktivitäten",
   "pageParticipantsTitle": "Teilnehmer",
   "pageLoginTitle": "Anmelden",
