@@ -29,7 +29,7 @@ RUN apk add --no-cache openjdk11 && \
     /opt/gradle-6.0.1/bin/gradle -p /opt/tractivity-server war
 
 
-FROM tomcat:10.0-jdk11
+FROM tomcat:10.1-jdk11
 
 RUN mkdir -p /usr/local/tomcat/webapps && \
     rm -rf /usr/local/tomcat/webapps/ROOT
