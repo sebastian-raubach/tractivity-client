@@ -91,6 +91,7 @@
   "tableColumnEventName": "Veranstaltungsname",
   "tableColumnEventCreatedOn": "Veranstaltungsdatum",
   "tableColumnEventLastActivity": "Letzte Aktivität am",
+  "tableColumnLocationName": "Standort",
   "tableColumnParticipantIcon": "Bild",
   "tableColumnParticipantName": "Name",
   "tableColumnParticipantDob": "Geburtstag",

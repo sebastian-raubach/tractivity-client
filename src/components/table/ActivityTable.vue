@@ -37,7 +37,7 @@
 
     <b-button variant="primary" @click="addActivity"><BIconJournalPlus /> {{ $t('buttonAddActivity') }}</b-button>
 
-    <AddEditActivityModal :eventIdToSelect="eventIdToSelect" :activityToEdit="selectedActivity" ref="activityModal" @change="update" />
+    <AddEditActivityModal :eventIdToSelect="eventIdToSelect" :preferredLocation="preferredLocation" :activityToEdit="selectedActivity" ref="activityModal" @change="update" />
   </div>
 </template>
 
@@ -93,6 +93,13 @@ export default {
     }
   },
   computed: {
+    preferredLocation: function () {
+      if (!this.selectedActivity && this.items && this.items.length > 0) {
+        return this.items.concat().sort((a, b) => a.createdOn - b.createdOn)[0].locationId
+      } else {
+        return null
+      }
+    },
     years: function () {
       if (this.minYear && this.maxYear) {
         return Array.from({ length: this.maxYear - this.minYear + 1 }, (v, k) => this.minYear + k)
@@ -109,6 +116,10 @@ export default {
         key: 'activityTypeName',
         sortable: true,
         label: this.$t('tableColumnActivityTypeName')
+      }, {
+        key: 'locationName',
+        sortable: true,
+        label: this.$t('tableColumnLocationName')
       }, {
         key: 'participants',
         sortable: false,

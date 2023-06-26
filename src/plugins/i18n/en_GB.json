@@ -91,6 +91,7 @@
   "tableColumnEventName": "Event name",
   "tableColumnEventCreatedOn": "Event date",
   "tableColumnEventLastActivity": "Last activity on",
+  "tableColumnLocationName": "Location",
   "tableColumnParticipantIcon": "Image",
   "tableColumnParticipantName": "Name",
   "tableColumnParticipantDob": "Date of birth",

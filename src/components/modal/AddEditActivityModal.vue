@@ -114,6 +114,10 @@ export default {
     eventIdToSelect: {
       type: Number,
       default: null
+    },
+    preferredLocation: {
+      type: Number,
+      default: null
     }
   },
   data: function () {
@@ -140,8 +144,10 @@ export default {
     event: function (newValue) {
       if (newValue) {
         this.eventId = newValue.eventId
+        this.createdOn = newValue.eventCreatedOn
       } else {
         this.eventId = null
+        this.createdOn = new Date()
       }
     }
   },
@@ -297,7 +303,11 @@ export default {
         this.locations = result
 
         if (result.length > 0) {
-          this.locationId = result[0].id
+          if (this.preferredLocation !== undefined && this.preferredLocation !== null) {
+            this.locationId = this.preferredLocation
+          } else {
+            this.locationId = result[0].id
+          }
         }
       })
     },
@@ -327,7 +337,7 @@ export default {
       } else {
         this.activityTypeId = null
         this.eventId = this.eventIdToSelect
-        this.locationId = null
+        this.locationId = this.preferredLocation
         this.createdOn = new Date()
       }
       this.errorMessage = null
