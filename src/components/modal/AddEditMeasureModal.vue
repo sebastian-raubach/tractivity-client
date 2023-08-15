@@ -1,7 +1,7 @@
 <template>
   <b-modal :ok-title="$t('buttonSave')"
            :cancel-title="$t('buttonCancel')"
-           :title="$t('modalTitleAddLocation')"
+           :title="$t('modalTitleAddMeasure')"
            size="lg"
            @shown="updateMeasures"
            @ok.prevent="onSubmit"
@@ -92,8 +92,32 @@ export default {
     selectedMeasure: function (newValue) {
       if (newValue) {
         this.measureId = newValue.id
+        this.measuredValue = null
+
         if (newValue.type === 'multi_cat') {
-          this.measuredValue = []
+          if (newValue.defaultValue) {
+            this.measuredValue = [newValue.defaultValue]
+          } else {
+            this.measuredValue = []
+          }
+        } else if (newValue.type === 'single_cat') {
+          if (newValue.defaultValue) {
+            this.measuredValue = newValue.defaultValue
+          }
+        } else if (newValue.type === 'integer' || newValue.type === 'decimal') {
+          if (newValue.defaultValue) {
+            this.measuredValue = +newValue.defaultValue
+          }
+        } else if (newValue.type === 'truth_value') {
+          if (newValue.defaultValue === 'true') {
+            this.measuredValue = true
+          } else if (newValue.defaultValue === 'false') {
+            this.measuredValue = false
+          }
+        } else if (newValue.type === 'date') {
+          if (newValue.defaultValue) {
+            this.measuredValue = new Date(newValue.defaultValue)
+          }
         } else {
           this.measuredValue = null
         }

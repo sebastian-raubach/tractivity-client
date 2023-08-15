@@ -11,7 +11,15 @@
       </b-form-group>
 
       <b-form-group :label="$t('formLabelMeasureType')" label-for="type">
-        <b-form-select :options="measureTypes" v-model="measureType" :disabled="isEdit" />
+        <b-form-select id="type" :options="measureTypes" v-model="measureType" :disabled="isEdit" />
+      </b-form-group>
+
+      <b-form-group :label="$t('formLabelMeasureDefaultValue')" label-for="default-value">
+        <b-form-checkbox switch id="value" v-model="defaultValue" v-if="measureType === 'truth_value'" />
+        <b-form-select id="value" :disabled="!measureCategoryOptions || measureCategoryOptions.length < 1" :options="measureCategoryOptions" v-model="defaultValue" v-else-if="measureType === 'multi_cat' || measureType === 'single_cat'" />
+        <b-form-input id="value" type="number" v-model="defaultValue" v-else-if="measureType === 'integer' || measureType === 'decimal'" />
+        <b-form-datepicker id="value" :value-as-date="true" :start-weekday="1" v-model="defaultValue" v-else-if="measureType === 'date'" />
+        <b-form-input id="value" v-model="defaultValue" v-else />
       </b-form-group>
 
       <b-row>
@@ -68,6 +76,7 @@ export default {
       imageFile: null,
       imageData: null,
       measureType: null,
+      defaultValue: null,
       minValue: null,
       maxValue: null,
       minDate: null,
@@ -81,6 +90,19 @@ export default {
     }
   },
   computed: {
+    measureCategoryOptions: function () {
+      const result = [{
+        value: null,
+        text: this.$t('formSelectOptionNone')
+      }]
+      if (this.measureType === 'multi_cat' || this.measureType === 'single_cat') {
+        if (this.categories && this.categories.length > 0) {
+          this.categories.split(',').map(c => c.trim()).filter(c => c && c.length > 0).forEach(c => result.push({ value: c, text: c }))
+        }
+      }
+
+      return result
+    },
     isEdit: function () {
       return this.measureTypeToEdit !== null
     },
@@ -110,6 +132,9 @@ export default {
     }
   },
   watch: {
+    measureType: function () {
+      this.defaultValue = null
+    },
     imageFile: async function (newValue) {
       if (newValue) {
         // Convert to base64 for displaying
@@ -151,6 +176,7 @@ export default {
         formData.append('image', this.imageFile)
         formData.append('name', this.name)
         if (!this.isEdit) {
+          formData.append('defaultValue', this.defaultValue)
           formData.append('measureType', this.measureType)
           if (this.minDate) {
             formData.append('minDate', this.minDate.toISOString().substring(0, 10))
@@ -204,6 +230,7 @@ export default {
         this.measureType = this.measureTypeToEdit.type
         this.imageFile = null
         this.imageData = null
+        this.defaultValue = this.measureTypeToEdit.defaultValue
         this.minValue = this.measureTypeToEdit.restrictions ? this.measureTypeToEdit.restrictions.minValue : null
         this.maxValue = this.measureTypeToEdit.restrictions ? this.measureTypeToEdit.restrictions.maxValue : null
         this.minDate = this.measureTypeToEdit.restrictions ? this.measureTypeToEdit.restrictions.minDate : null
@@ -214,6 +241,7 @@ export default {
         this.measureType = null
         this.imageFile = null
         this.imageData = null
+        this.defaultValue = null
         this.minValue = null
         this.maxValue = null
         this.minDate = null

@@ -44,7 +44,12 @@
         </b-col>
         <b-col cols=12 md=6>
           <b-form-group :label="$t('formLabelActivityDate')" label-for="activity-date">
-            <b-form-datepicker id="activity-date" :start-weekday="1" :value-as-date="true" v-model="createdOn" />
+            <b-input-group>
+              <b-form-datepicker id="activity-date" :start-weekday="1" :value-as-date="true" v-model="createdOn" />
+              <b-input-group-append>
+                <b-button @click="setToday"><BIconCalendarDate /></b-button>
+              </b-input-group-append>
+            </b-input-group>
           </b-form-group>
         </b-col>
         <b-col cols=12>
@@ -89,7 +94,7 @@ import { apiGetLocations } from '@/plugins/api/location'
 import { apiGetActivityTypes, apiPostActivity } from '@/plugins/api/activity'
 import { apiGetEvent } from '@/plugins/api/event'
 
-import { BIconBookmarkStar, BIconPencil, BIconPlus } from 'bootstrap-vue'
+import { BIconBookmarkStar, BIconPencil, BIconPlus, BIconCalendarDate } from 'bootstrap-vue'
 import { apiPostParticipantTable } from '@/plugins/api/participant'
 import { MAX_JAVA_INTEGER } from '@/plugins/api/base'
 
@@ -100,6 +105,7 @@ export default {
     BIconBookmarkStar,
     BIconPlus,
     BIconPencil,
+    BIconCalendarDate,
     AddEditActivityTypeModal,
     AddEditLocationModal,
     CustomAvatar,
@@ -144,7 +150,7 @@ export default {
     event: function (newValue) {
       if (newValue) {
         this.eventId = newValue.eventId
-        this.createdOn = newValue.eventCreatedOn
+        this.createdOn = newValue.latestActivity
       } else {
         this.eventId = null
         this.createdOn = new Date()
@@ -310,6 +316,9 @@ export default {
           }
         }
       })
+    },
+    setToday: function () {
+      this.createdOn = new Date().toISOString()
     },
     updateParticipants: function () {
       apiPostParticipantTable({
