@@ -19,19 +19,24 @@
       <h2>{{ $t('pageParticipantDetailsActivityHeatmap') }}</h2>
 
       <b-row>
-        <b-col cols=12 md=6>
+        <b-col cols=12 md=4>
           <b-form-group :label="$t('formLabelActivityHeatmapYear')" label-for="year">
             <b-form-select id="year" :options="years" v-model="selectedYear" />
           </b-form-group>
         </b-col>
-        <b-col cols=12 md=6>
+        <b-col cols=12 md=4>
           <b-form-group :label="$t('formLabelActivityType')" label-for="activityType">
             <b-form-select id="activityType" :options="activityTypeOptions" v-model="selectedActivityType" />
           </b-form-group>
         </b-col>
+        <b-col cols=12 md=4>
+          <b-form-group :label="$t('formLabelActivityColorBy')" label-for="colorBy">
+            <b-form-select id="colorBy" :options="colorByOptions" v-model="selectedColorBy" />
+          </b-form-group>
+        </b-col>
       </b-row>
 
-      <ParticipantActivityHeatmap :participant="participant" :year="selectedYear" :activityTypeId="selectedActivityType" />
+      <ParticipantActivityHeatmap :colorBy="selectedColorBy" :participant="participant" :year="selectedYear" :activityTypeId="selectedActivityType" />
     </div>
 
     <div class="mb-4">
@@ -67,8 +72,12 @@ import ParticipantActivityHeatmap from '@/components/chart/ParticipantActivityHe
 import { apiGetActivityYears, apiGetActivityTypes } from '@/plugins/api/activity'
 
 import { apiGetParticipant, apiGetParticipantActivityCount, apiPostParticipantActivityTable } from '@/plugins/api/participant'
+import { apiGetMeasures } from '@/plugins/api/measure'
 
 const theYear = new Date().getFullYear()
+const countMeasure = {
+  id: -1
+}
 
 export default {
   components: {
@@ -88,10 +97,25 @@ export default {
       selectedActivityType: null,
       activityTypes: [],
       minYear: theYear,
-      maxYear: theYear
+      maxYear: theYear,
+      selectedColorBy: countMeasure,
+      measures: []
     }
   },
   computed: {
+    colorByOptions: function () {
+      const result = [
+        { value: countMeasure, text: this.$t('formSelectOptionCount') }
+      ]
+
+      if (this.measures) {
+        this.measures.forEach(m => {
+          result.push({ value: m, text: m.name })
+        })
+      }
+
+      return result
+    },
     activityTypeOptions: function () {
       let result
       if (this.activityTypes) {
@@ -133,6 +157,11 @@ export default {
       apiGetParticipantActivityCount(this.participantId, result => {
         this.participantActivityCount = result
       })
+    },
+    updateMeasures: function () {
+      apiGetMeasures(result => {
+        this.measures = result
+      })
     }
   },
   mounted: function () {
@@ -143,6 +172,7 @@ export default {
       this.maxYear = result.max
 
       this.update()
+      this.updateMeasures()
     })
 
     apiGetActivityTypes(result => {

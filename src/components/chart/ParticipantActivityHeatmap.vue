@@ -12,6 +12,8 @@ const Plotly = require('plotly.js-dist-min')
 
 let chartData = null
 
+const categoryColors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+
 export default {
   props: {
     participant: {
@@ -25,6 +27,10 @@ export default {
     activityTypeId: {
       type: Number,
       default: null
+    },
+    colorBy: {
+      type: Object,
+      default: () => { return { id: -1 } }
     }
   },
   data: function () {
@@ -65,6 +71,9 @@ export default {
     },
     activityTypeId: function () {
       this.update()
+    },
+    colorBy: function () {
+      this.drawChart()
     }
   },
   methods: {
@@ -103,32 +112,152 @@ export default {
     drawChart: function () {
       Plotly.purge(this.$refs.chart)
 
-      const z = Array.from(Array(31).keys()).map(i => new Array(12).fill(0))
-
-      chartData.forEach(dp => {
-        const date = new Date(dp.activityCreatedOn)
-        const month = date.getMonth()
-        const day = date.getDate()
-
-        z[day - 1][month]++
-      })
-
       const colorscale = this.colors.map((c, i) => [(i + 1) / (this.colors.length), c])
       colorscale.unshift([0, 'rgba(25,36,46,0.5)'])
 
-      const traces = [{
-        z: z,
-        x: this.months,
-        y: Array.from(Array(31).keys()).map(i => i + 1),
-        type: 'heatmap',
-        hoverongaps: false,
-        xgap: 1,
-        ygap: 1,
-        name: '',
-        colorscale: colorscale,
-        hovertemplate: '%{x}. %{y}: %{z}',
-        colorbar: { tickfont: { color: 'white' } }
-      }]
+      let z
+      const traces = []
+
+      if (this.colorBy.id === -1 || this.colorBy.type === 'integer' || this.colorBy.type === 'decimal') {
+        z = Array.from(Array(31).keys()).map(i => new Array(12).fill(0))
+        chartData.forEach(dp => {
+          const date = new Date(dp.activityCreatedOn)
+          const month = date.getMonth()
+          const day = date.getDate()
+
+          if (this.colorBy.id === -1) {
+            z[day - 1][month]++
+          } else if (this.colorBy.type === 'integer' || this.colorBy.type === 'decimal') {
+            if (dp.participantMeasures) {
+              dp.participantMeasures.filter(pm => pm.participantId === this.participant.participantId).forEach(pm => {
+                if (pm.participantMeasures) {
+                  pm.participantMeasures.filter(ppmm => ppmm.measureId === this.colorBy.id).forEach(ppmm => {
+                    z[day - 1][month] = +ppmm.measuredValue
+                  })
+                }
+              })
+            }
+          }
+        })
+
+        traces.push({
+          z: z,
+          x: this.months,
+          y: Array.from(Array(31).keys()).map(i => i + 1),
+          type: 'heatmap',
+          hoverongaps: false,
+          xgap: 1,
+          ygap: 1,
+          name: '',
+          colorscale: colorscale,
+          hovertemplate: '%{x}. %{y}: %{z}',
+          colorbar: { tickfont: { color: 'white' } }
+        })
+      } else {
+        z = Array.from(Array(31).keys()).map(i => new Array(12).fill(NaN))
+        if (this.colorBy.type === 'truth_value') {
+          const truthArray = ['true', 'false']
+          chartData.forEach(dp => {
+            const date = new Date(dp.activityCreatedOn)
+            const month = date.getMonth()
+            const day = date.getDate()
+
+            if (dp.participantMeasures) {
+              dp.participantMeasures.filter(pm => pm.participantId === this.participant.participantId).forEach(pm => {
+                if (pm.participantMeasures) {
+                  pm.participantMeasures.filter(ppmm => ppmm.measureId === this.colorBy.id).forEach(ppmm => {
+                    z[day - 1][month] = truthArray.indexOf(ppmm.measuredValue)
+                  })
+                }
+              })
+            }
+          })
+
+          traces.push({
+            z: z,
+            x: this.months,
+            y: Array.from(Array(31).keys()).map(i => i + 1),
+            type: 'heatmap',
+            hoverongaps: false,
+            xgap: 1,
+            ygap: 1,
+            name: '',
+            zauto: false,
+            zmin: -0.5,
+            zmax: truthArray.length - 0.5,
+            colorbar: {
+              tickmode: 'array',
+              tickvals: truthArray.map((c, i) => i),
+              ticktext: truthArray,
+              title: {
+                side: 'right',
+                font: { color: 'white' }
+              },
+              tickfont: { color: 'white' },
+              autotick: false,
+              tick0: 0,
+              dtick: 1,
+              nticks: truthArray.length
+            },
+            colorscale: truthArray.map((_, i) => {
+              const l = truthArray.length
+              const c = categoryColors[i % categoryColors.length]
+              return [[i / l, c], [(i + 1) / l, c]]
+            }).flat(),
+            hovertemplate: '%{x}. %{y}: %{z}'
+          })
+        } else if (this.colorBy.type === 'single_cat') {
+          chartData.forEach(dp => {
+            const date = new Date(dp.activityCreatedOn)
+            const month = date.getMonth()
+            const day = date.getDate()
+
+            if (dp.participantMeasures) {
+              dp.participantMeasures.filter(pm => pm.participantId === this.participant.participantId).forEach(pm => {
+                if (pm.participantMeasures) {
+                  pm.participantMeasures.filter(ppmm => ppmm.measureId === this.colorBy.id).forEach(ppmm => {
+                    z[day - 1][month] = this.colorBy.restrictions.categories.indexOf(ppmm.measuredValue)
+                  })
+                }
+              })
+            }
+          })
+
+          traces.push({
+            z: z,
+            x: this.months,
+            y: Array.from(Array(31).keys()).map(i => i + 1),
+            type: 'heatmap',
+            hoverongaps: false,
+            xgap: 1,
+            ygap: 1,
+            name: '',
+            zauto: false,
+            zmin: -0.5,
+            zmax: this.colorBy.restrictions.categories.length - 0.5,
+            colorbar: {
+              tickmode: 'array',
+              tickvals: this.colorBy.restrictions.categories.map((c, i) => i),
+              ticktext: this.colorBy.restrictions.categories,
+              title: {
+                side: 'right',
+                font: { color: 'white' }
+              },
+              tickfont: { color: 'white' },
+              autotick: false,
+              tick0: 0,
+              dtick: 1,
+              nticks: this.colorBy.restrictions.categories.length
+            },
+            colorscale: this.colorBy.restrictions.categories.map((_, i) => {
+              const l = this.colorBy.restrictions.categories.length
+              const c = categoryColors[i % categoryColors.length]
+              return [[i / l, c], [(i + 1) / l, c]]
+            }).flat(),
+            hovertemplate: '%{x}. %{y}: %{z}'
+          })
+        }
+      }
 
       const monthAxis = {
         showgrid: false,

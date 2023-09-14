@@ -28,6 +28,10 @@
                         type="participant" />
         </b-avatar-group>
       </template>
+
+      <template v-slot:cell(delete)="data">
+        <b-button size="sm" variant="danger" @click="deleteActivity(data.item)"><BIconTrash /></b-button>
+      </template>
     </b-table>
 
     <b-pagination v-if="totalRows > perPage"
@@ -45,13 +49,15 @@
 import AddEditActivityModal from '@/components/modal/AddEditActivityModal'
 import CustomAvatar from '@/components/util/CustomAvatar'
 
-import { BIconJournalPlus } from 'bootstrap-vue'
+import { BIconJournalPlus, BIconTrash } from 'bootstrap-vue'
+import { apiDeleteActivity } from '@/plugins/api/activity'
 
 export default {
   components: {
     AddEditActivityModal,
     CustomAvatar,
-    BIconJournalPlus
+    BIconJournalPlus,
+    BIconTrash
   },
   props: {
     eventIdToSelect: {
@@ -138,10 +144,25 @@ export default {
         sortable: true,
         label: this.$t('tableColumnEventCreatedOn'),
         formatter: value => value ? new Date(value).toLocaleDateString() : null
+      }, {
+        key: 'delete',
+        sortable: false,
+        label: ''
       }]
     }
   },
   methods: {
+    deleteActivity: function (activity) {
+      this.$bvModal.msgBoxConfirm(this.$t('modalTextDeleteActivityConfirm'), {
+        title: this.$t('modalTitleDeleteActivityConfirm'),
+        okTitle: this.$t('buttonYes'),
+        cancelTitle: this.$t('buttonNo')
+      }).then(value => {
+        if (value) {
+          apiDeleteActivity(activity.activityId, () => this.update(true))
+        }
+      })
+    },
     addActivity: function () {
       this.selectedActivity = null
       this.$nextTick(() => this.$refs.activityModal.show())
@@ -151,11 +172,11 @@ export default {
         this.$router.push({ name: 'activity-details', params: { activityId: item[0].activityId } })
       }
     },
-    update: function () {
+    update: function (resetTotal = false) {
       this.getData({
         page: this.page,
         limit: this.perPage,
-        prevCount: this.totalRows,
+        prevCount: resetTotal ? -1 : this.totalRows,
         orderBy: this.sortBy,
         ascending: this.sortDesc ? 0 : 1
       })

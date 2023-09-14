@@ -4,6 +4,8 @@ const apiGetActivityTypes = (onSuccess, onError) => apiAxios({ url: 'activitytyp
 
 const apiGetActivity = (activityId, onSuccess, onError) => apiAxios({ url: `activity/${activityId}`, success: onSuccess, error: onError })
 
+const apiDeleteActivity = (activityId, onSuccess, onError) => apiAxios({ url: `activity/${activityId}`, method: 'DELETE', success: onSuccess, error: onError })
+
 const apiGetActivityYears = (onSuccess, onError) => apiAxios({ url: 'activity/year', success: onSuccess, error: onError })
 
 const apiPostActivityTable = (queryData, onSuccess, onError) => {
@@ -19,6 +21,7 @@ const apiPatchActivityType = (activityTypeId, formData, onSuccess, onError) => a
 
 export {
   apiGetActivity,
+  apiDeleteActivity,
   apiGetActivityYears,
   apiPostActivityTable,
   apiGetActivityTypes,

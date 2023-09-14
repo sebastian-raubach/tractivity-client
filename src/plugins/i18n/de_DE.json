@@ -61,6 +61,8 @@
   "modalTextDeleteParticipantConfirm": "Das Löschen eines Teilnehmers führt zum Löschen aller Aktivitäten und Messungen die diesem Teilnehmer zugewiesen sind. Sicher, dass der Teilnehmer entfernt werden soll?",
   "modalTitleDeleteMeasureConfirm": "Löschen bestätigen",
   "modalTextDeleteMeasureConfirm": "Sicher, dass diese Messung entfernt werden soll?",
+  "modalTitleDeleteActivityConfirm": "Löschen bestätigen",
+  "modalTextDeleteActivityConfirm": "Sicher, dass diese Aktivität entfernt werden soll?",
   "modalTitleAddActivity": "Aktivität hinzufügen",
   "modalTitleSelectEvent": "Veranstaltung auswählen",
   "modalTitleAddEvent": "Veranstaltung hinzufügen",
