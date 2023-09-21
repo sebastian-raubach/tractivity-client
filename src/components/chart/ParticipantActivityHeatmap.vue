@@ -206,7 +206,7 @@ export default {
             }).flat(),
             hovertemplate: '%{x}. %{y}: %{z}'
           })
-        } else if (this.colorBy.type === 'single_cat') {
+        } else if (this.colorBy.type === 'single_cat' || this.colorBy.type === 'multi_cat') {
           chartData.forEach(dp => {
             const date = new Date(dp.activityCreatedOn)
             const month = date.getMonth()
