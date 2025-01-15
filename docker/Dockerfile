@@ -1,4 +1,4 @@
-FROM node:16-alpine AS builder
+FROM node:22.11-alpine3.20 AS builder
 
 ARG BRANCH=master
 
@@ -21,15 +21,15 @@ RUN rm -f .env && \
     cp -a /opt/tractivity-client/dist/. /opt/tractivity-server/client/
 
 # Download Gradle and build the server code
-RUN apk add --no-cache openjdk11 && \
-    wget https://services.gradle.org/distributions/gradle-6.0.1-bin.zip -P /tmp/ && \
-    unzip /tmp/gradle-6.0.1-bin.zip -d /opt/ && \
+RUN apk add --no-cache openjdk21 && \
+    wget https://services.gradle.org/distributions/gradle-8.8-bin.zip -P /tmp/ && \
+    unzip /tmp/gradle-8.8-bin.zip -d /opt/ && \
     echo "data.directory.external=/data/tractivity" > /opt/tractivity-server/config.properties && \
     echo "project.name=tractivity" >> /opt/tractivity-server/gradle.properties && \
-    /opt/gradle-6.0.1/bin/gradle -p /opt/tractivity-server war
+    /opt/gradle-8.8/bin/gradle -p /opt/tractivity-server war
 
 
-FROM tomcat:10.1-jdk11
+FROM tomcat:10.1-jdk21
 
 RUN mkdir -p /usr/local/tomcat/webapps && \
     rm -rf /usr/local/tomcat/webapps/ROOT

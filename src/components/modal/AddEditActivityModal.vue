@@ -150,7 +150,7 @@ export default {
     event: function (newValue) {
       if (newValue) {
         this.eventId = newValue.eventId
-        this.createdOn = newValue.latestActivity
+        this.createdOn = newValue.latestActivity || newValue.eventCreatedOn
       } else {
         this.eventId = null
         this.createdOn = new Date()
@@ -300,7 +300,9 @@ export default {
       apiGetActivityTypes(result => {
         this.activityTypes = result
         if (this.activityTypeId === null && result.length > 0) {
-          this.activityTypeId = result[0].id
+          const sorted = result.concat().sort((a, b) => b.count - a.count)
+
+          this.activityTypeId = sorted[0].id
         }
       })
     },

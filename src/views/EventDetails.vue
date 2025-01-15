@@ -39,7 +39,7 @@ export default {
     }
   },
   mounted: function () {
-    this.eventId = this.$route.params ? this.$route.params.eventId : null
+    this.eventId = this.$route.params ? +this.$route.params.eventId : null
     this.update()
   }
 }

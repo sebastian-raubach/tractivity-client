@@ -94,32 +94,46 @@ export default {
         this.measureId = newValue.id
         this.measuredValue = null
 
-        if (newValue.type === 'multi_cat') {
-          if (newValue.defaultValue) {
-            this.measuredValue = [newValue.defaultValue]
+        if (this.measureToEdit) {
+          if (this.measureToEdit.measureType === 'truth_value') {
+            if (this.measureToEdit.measuredValue === 'false') {
+              this.measuredValue = false
+            } else if (this.measureToEdit.measuredValue === 'true') {
+              this.measuredValue = true
+            }
           } else {
-            this.measuredValue = []
-          }
-        } else if (newValue.type === 'single_cat') {
-          if (newValue.defaultValue) {
-            this.measuredValue = newValue.defaultValue
-          }
-        } else if (newValue.type === 'integer' || newValue.type === 'decimal') {
-          if (newValue.defaultValue) {
-            this.measuredValue = +newValue.defaultValue
-          }
-        } else if (newValue.type === 'truth_value') {
-          if (newValue.defaultValue === 'true') {
-            this.measuredValue = true
-          } else if (newValue.defaultValue === 'false') {
-            this.measuredValue = false
-          }
-        } else if (newValue.type === 'date') {
-          if (newValue.defaultValue) {
-            this.measuredValue = new Date(newValue.defaultValue)
+            this.measuredValue = this.measureToEdit.measuredValue
           }
         } else {
-          this.measuredValue = null
+          if (newValue.type === 'multi_cat') {
+            if (newValue.defaultValue) {
+              this.measuredValue = [newValue.defaultValue]
+            } else {
+              this.measuredValue = []
+            }
+          } else if (newValue.type === 'single_cat') {
+            if (newValue.defaultValue) {
+              this.measuredValue = newValue.defaultValue
+            }
+          } else if (newValue.type === 'integer' || newValue.type === 'decimal') {
+            if (newValue.defaultValue) {
+              this.measuredValue = +newValue.defaultValue
+            }
+          } else if (newValue.type === 'truth_value') {
+            if (newValue.defaultValue === 'true') {
+              this.measuredValue = true
+            } else if (newValue.defaultValue === 'false') {
+              this.measuredValue = false
+            } else {
+              this.measuredValue = false
+            }
+          } else if (newValue.type === 'date') {
+            if (newValue.defaultValue) {
+              this.measuredValue = new Date(newValue.defaultValue)
+            }
+          } else {
+            this.measuredValue = null
+          }
         }
       } else {
         this.measureId = null
@@ -321,7 +335,15 @@ export default {
       if (this.measureToEdit) {
         this.measureId = this.measureToEdit.measureId
         this.measureType = this.measureToEdit.measureType
-        this.measuredValue = this.measureToEdit.measuredValue
+        if (this.measureToEdit.measureType === 'truth_value') {
+          if (this.measureToEdit.measuredValue === 'false') {
+            this.measuredValue = false
+          } else if (this.measureToEdit.measuredValue === 'true') {
+            this.measuredValue = true
+          }
+        } else {
+          this.measuredValue = this.measureToEdit.measuredValue
+        }
       } else {
         this.measureId = null
         this.measureType = null

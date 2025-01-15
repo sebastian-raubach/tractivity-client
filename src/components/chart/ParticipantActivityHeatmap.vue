@@ -129,13 +129,20 @@ export default {
             z[day - 1][month]++
           } else if (this.colorBy.type === 'integer' || this.colorBy.type === 'decimal') {
             if (dp.participantMeasures) {
+              let count = 0
               dp.participantMeasures.filter(pm => pm.participantId === this.participant.participantId).forEach(pm => {
                 if (pm.participantMeasures) {
                   pm.participantMeasures.filter(ppmm => ppmm.measureId === this.colorBy.id).forEach(ppmm => {
-                    z[day - 1][month] = +ppmm.measuredValue
+                    z[day - 1][month] += +ppmm.measuredValue
+                    count++
                   })
                 }
               })
+
+              if (count > 0) {
+                // Average
+                z[day - 1][month] /= count
+              }
             }
           }
         })
@@ -158,6 +165,7 @@ export default {
         if (this.colorBy.type === 'truth_value') {
           const truthArray = ['true', 'false']
           chartData.forEach(dp => {
+            const counts = [0, 0]
             const date = new Date(dp.activityCreatedOn)
             const month = date.getMonth()
             const day = date.getDate()
@@ -166,11 +174,15 @@ export default {
               dp.participantMeasures.filter(pm => pm.participantId === this.participant.participantId).forEach(pm => {
                 if (pm.participantMeasures) {
                   pm.participantMeasures.filter(ppmm => ppmm.measureId === this.colorBy.id).forEach(ppmm => {
-                    z[day - 1][month] = truthArray.indexOf(ppmm.measuredValue)
+                    counts[truthArray.indexOf(ppmm.measuredValue)]++
                   })
                 }
               })
             }
+
+            const max = Math.max(counts[0], counts[1])
+
+            z[day - 1][month] = max > 0 ? counts.indexOf(max) : NaN
           })
 
           traces.push({
