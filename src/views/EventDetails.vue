@@ -4,6 +4,8 @@
 
     <hr />
 
+    <div v-if="event.eventDescription">{{ event.eventDescription }}</div>
+
     <ActivityTable :getData="getActivities" :eventIdToSelect="eventId" />
   </section>
 </template>

@@ -6,7 +6,7 @@ import { i18n } from '@/plugins/i18n.js'
 import './registerServiceWorker'
 import axios from 'axios'
 
-import { AvatarPlugin, BadgePlugin, ButtonGroupPlugin, ButtonPlugin, CardPlugin, FormCheckboxPlugin, FormDatepickerPlugin, FormFilePlugin, FormGroupPlugin, FormInputPlugin, FormPlugin, FormRadioPlugin, FormSelectPlugin, ImagePlugin, InputGroupPlugin, LayoutPlugin, ListGroupPlugin, ModalPlugin, NavbarPlugin, PaginationPlugin, SpinnerPlugin, TablePlugin, TooltipPlugin } from 'bootstrap-vue'
+import { AvatarPlugin, BadgePlugin, ButtonGroupPlugin, ButtonPlugin, CardPlugin, FormCheckboxPlugin, FormDatepickerPlugin, FormFilePlugin, FormGroupPlugin, FormInputPlugin, FormPlugin, FormRadioPlugin, FormSelectPlugin, FormTextareaPlugin, ImagePlugin, InputGroupPlugin, LayoutPlugin, ListGroupPlugin, ModalPlugin, NavbarPlugin, PaginationPlugin, SpinnerPlugin, TablePlugin, TooltipPlugin } from 'bootstrap-vue'
 
 Vue.config.productionTip = false
 
@@ -34,6 +34,7 @@ Vue.use(FormGroupPlugin)
 Vue.use(FormInputPlugin)
 Vue.use(FormSelectPlugin)
 Vue.use(FormRadioPlugin)
+Vue.use(FormTextareaPlugin)
 Vue.use(ImagePlugin)
 Vue.use(InputGroupPlugin)
 Vue.use(LayoutPlugin)

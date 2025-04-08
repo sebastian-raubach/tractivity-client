@@ -9,6 +9,9 @@
       <b-form-group :label="$t('formLabelEventName')" label-for="name">
         <b-form-input id="name" v-model="name" />
       </b-form-group>
+      <b-form-group :label="$t('formLabelEventDescription')" label-for="description">
+        <b-form-textarea id="description" v-model="description" />
+      </b-form-group>
       <b-form-group :label="$t('formLabelEventCreatedOn')" label-for="createdOn">
         <b-form-datepicker id="createdOn" :start-weekday="1" :value-as-date="true" v-model="createdOn" />
       </b-form-group>
@@ -33,6 +36,7 @@ export default {
   data: function () {
     return {
       name: null,
+      description: null,
       createdOn: null,
       formState: {
         name: null,
@@ -83,11 +87,13 @@ export default {
           apiPatchEvent({
             id: this.eventToEdit.eventId,
             name: this.name,
+            description: this.description,
             createdOn: this.createdOn
           }, resultHandler, errorHandler)
         } else {
           apiPostEvent({
             name: this.name,
+            description: this.description,
             createdOn: this.createdOn
           }, resultHandler, errorHandler)
         }
@@ -99,9 +105,11 @@ export default {
     show: function () {
       if (this.eventToEdit) {
         this.name = this.eventToEdit.eventName
+        this.description = this.eventToEdit.eventDescription
         this.createdOn = this.eventToEdit.eventCreatedOn
       } else {
         this.name = null
+        this.description = null
         this.createdOn = new Date()
       }
       this.errorMessage = null
