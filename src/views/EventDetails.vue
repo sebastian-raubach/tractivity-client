@@ -1,23 +1,32 @@
 <template>
   <section v-if="event">
-    <h1 class="display-3 text-break">{{ event.eventName }}</h1>
+    <div class="d-flex align-items-center justify-content-center">
+      <h1 class="display-3 text-break">{{ event.eventName }}</h1>
+      <b-button @click="$refs.eventModal.show()"><BIconPencil /></b-button>
+    </div>
 
     <hr />
 
     <div v-if="event.eventDescription">{{ event.eventDescription }}</div>
 
     <ActivityTable :getData="getActivities" :eventIdToSelect="eventId" />
+
+    <AddEditEventModal :eventToEdit="event" ref="eventModal" @change="update" />
   </section>
 </template>
 
 <script>
+import AddEditEventModal from '@/components/modal/AddEditEventModal'
 import ActivityTable from '@/components/table/ActivityTable'
 
+import { BIconPencil } from 'bootstrap-vue'
 import { apiGetEvent, apiPostEventActivityTable } from '@/plugins/api/event'
 
 export default {
   components: {
-    ActivityTable
+    ActivityTable,
+    AddEditEventModal,
+    BIconPencil
   },
   data: function () {
     return {
