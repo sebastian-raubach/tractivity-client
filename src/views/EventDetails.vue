@@ -7,7 +7,7 @@
 
     <hr />
 
-    <div v-if="event.eventDescription">{{ event.eventDescription }}</div>
+    <div class="mb-3" v-if="event.eventDescription">{{ event.eventDescription }}</div>
 
     <ActivityTable :getData="getActivities" :eventIdToSelect="eventId" />
 
