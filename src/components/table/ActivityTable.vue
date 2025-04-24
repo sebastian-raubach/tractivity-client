@@ -29,7 +29,8 @@
         </b-avatar-group>
       </template>
 
-      <template v-slot:cell(delete)="data">
+      <template v-slot:cell(actions)="data">
+        <b-button size="sm" variant="info" @click="duplicateActivity(data.item)"><BIconClipboard /></b-button>
         <b-button size="sm" variant="danger" @click="deleteActivity(data.item)"><BIconTrash /></b-button>
       </template>
     </b-table>
@@ -42,22 +43,26 @@
     <b-button variant="primary" @click="addActivity"><BIconJournalPlus /> {{ $t('buttonAddActivity') }}</b-button>
 
     <AddEditActivityModal :eventIdToSelect="eventIdToSelect" :preferredLocation="preferredLocation" :activityToEdit="selectedActivity" ref="activityModal" @change="update" />
+    <PickDateModal ref="pickDateModal" @date-selected="duplicateActivityDate" />
   </div>
 </template>
 
 <script>
 import AddEditActivityModal from '@/components/modal/AddEditActivityModal'
 import CustomAvatar from '@/components/util/CustomAvatar'
+import PickDateModal from '@/components/modal/PickDateModal'
 
-import { BIconJournalPlus, BIconTrash } from 'bootstrap-vue'
-import { apiDeleteActivity } from '@/plugins/api/activity'
+import { BIconJournalPlus, BIconTrash, BIconClipboard } from 'bootstrap-vue'
+import { apiDeleteActivity, apiDuplicateActivity } from '@/plugins/api/activity'
 
 export default {
   components: {
     AddEditActivityModal,
     CustomAvatar,
+    PickDateModal,
     BIconJournalPlus,
-    BIconTrash
+    BIconTrash,
+    BIconClipboard
   },
   props: {
     eventIdToSelect: {
@@ -145,13 +150,23 @@ export default {
         label: this.$t('tableColumnEventCreatedOn'),
         formatter: value => value ? new Date(value).toLocaleDateString() : null
       }, {
-        key: 'delete',
+        key: 'actions',
         sortable: false,
         label: ''
       }]
     }
   },
   methods: {
+    duplicateActivityDate: function (date) {
+      apiDuplicateActivity(this.selectedActivity.activityId, date, () => this.update(true))
+
+      this.selectedActivity = null
+    },
+    duplicateActivity: function (activity) {
+      this.selectedActivity = activity
+
+      this.$nextTick(() => this.$refs.pickDateModal.show())
+    },
     deleteActivity: function (activity) {
       this.$bvModal.msgBoxConfirm(this.$t('modalTextDeleteActivityConfirm'), {
         title: this.$t('modalTitleDeleteActivityConfirm'),

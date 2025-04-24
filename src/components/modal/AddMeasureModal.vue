@@ -5,7 +5,7 @@
            size="md"
            @ok.prevent="onSubmit"
            ref="addMeasureModal">
-    <b-form @submit.prevent="onSubmit" novalidate>
+    <b-form @submit.prevent="onSubmit" novalidate autocomplete="off">
       <div class="text-center" v-if="selectedMeasure">
         <CustomAvatar :id="selectedMeasure.id"
                       :name="selectedMeasure.name"

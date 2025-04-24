@@ -10,7 +10,7 @@
   "dependencies": {
     "axios": "^1.1.2",
     "bootstrap": "^4.6.2",
-    "bootstrap-vue": "^2.22.0",
+    "bootstrap-vue": "^2.23.1",
     "bootswatch": "^4.6.2",
     "core-js": "^3.8.3",
     "laue": "^0.2.1",

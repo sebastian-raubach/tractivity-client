@@ -6,6 +6,8 @@ const apiGetActivity = (activityId, onSuccess, onError) => apiAxios({ url: `acti
 
 const apiDeleteActivity = (activityId, onSuccess, onError) => apiAxios({ url: `activity/${activityId}`, method: 'DELETE', success: onSuccess, error: onError })
 
+const apiDuplicateActivity = (activityId, date, onSuccess, onError) => apiAxios({ url: `activity/${activityId}/duplicate`, data: { date: date }, success: onSuccess, error: onError })
+
 const apiGetActivityYears = (onSuccess, onError) => apiAxios({ url: 'activity/year', success: onSuccess, error: onError })
 
 const apiPostActivityTable = (queryData, onSuccess, onError) => {
@@ -22,6 +24,7 @@ const apiPatchActivityType = (activityTypeId, formData, onSuccess, onError) => a
 export {
   apiGetActivity,
   apiDeleteActivity,
+  apiDuplicateActivity,
   apiGetActivityYears,
   apiPostActivityTable,
   apiGetActivityTypes,

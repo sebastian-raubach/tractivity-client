@@ -5,7 +5,7 @@
            size="xl"
            @ok.prevent="onSubmit"
            ref="addEditActivityModal">
-    <b-form @submit.prevent="onSubmit" novalidate>
+    <b-form @submit.prevent="onSubmit" novalidate autocomplete="off">
       <b-row>
         <b-col cols=12 md=6>
           <b-form-group :label="$t('formLabelEvent')" label-for="activity-event">
